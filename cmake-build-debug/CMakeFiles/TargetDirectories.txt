@@ -1,0 +1,3 @@
+C:/Users/yoshi/OneDrive/Documentos/GitHub/Teo_parcial2_Turing/cmake-build-debug/CMakeFiles/Teo_parcial2_Turing.dir
+C:/Users/yoshi/OneDrive/Documentos/GitHub/Teo_parcial2_Turing/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/yoshi/OneDrive/Documentos/GitHub/Teo_parcial2_Turing/cmake-build-debug/CMakeFiles/rebuild_cache.dir
