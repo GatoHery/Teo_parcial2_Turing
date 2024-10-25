@@ -12,14 +12,15 @@ void imprimir_seguimiento(int);
 void ejecutar_maquina(string, map<pair<string, char>, tuple<string, char, char>>, string, string, set<char>, char);
 
 int main() {
-    // Params de la TM
+    // Parámetros de la máquina de Turing
     string texto = "pollo";  // Cadena de entrada
     string estado_inicial = "q0";
     string estado_final = "qf";
-    char blanco = '_';  // palabra vacía
+    char blanco = '_';  // Representa la palabra vacía
 
-    // Alfabeto de la máquina (incluye la palabra vacia)
-    set<char> alfabeto_maquina = {'p', 'o', 'l', 'P', 'O', 'L', blanco};
+    // Alfabeto de la máquina (incluye el símbolo de blanco)
+    vector<char> alfabeto_maquina = {'p', 'o', 'l', 'P', 'O', 'L', blanco};
+    set<char> alfabeto_maquina_set(alfabeto_maquina.begin(), alfabeto_maquina.end());
 
     // Función de transición (estado actual, símbolo leído) -> (nuevo estado, nuevo símbolo, dirección)
     map<pair<string, char>, tuple<string, char, char>> transiciones;
@@ -29,8 +30,31 @@ int main() {
     transiciones[{"q3", 'l'}] = {"q4", 'L', 'R'};
     transiciones[{"q4", 'o'}] = {"qf", 'O', 'R'};
 
+    // Verificar que la cadena de entrada solo contenga símbolos del alfabeto de la máquina
+    vector<char> simbolos_invalidos;
+    for (char c : texto) {
+        if (alfabeto_maquina_set.find(c) == alfabeto_maquina_set.end()) {
+            simbolos_invalidos.push_back(c);
+        }
+    }
+    // Imprimir los símbolos aceptados
+    cout << "simbolos aceptados: ";
+    for (char c : alfabeto_maquina) {
+        cout << c << " ";
+    }
+    cout << endl;
+    // Imprimir la palabra de entrada
+    cout << "Palabra de entrada: " << texto << endl;
+    if (!simbolos_invalidos.empty()) {
+        cout << "Error: La cadena de entrada contiene simbolos no validos: ";
+        for (char c : simbolos_invalidos) {
+            cout << c << ", ";
+        }
+        cout << endl;
+        return 1;
+    }
     // Ejecutar la máquina de Turing
-    ejecutar_maquina(texto, transiciones, estado_inicial, estado_final, alfabeto_maquina, blanco);
+    ejecutar_maquina(texto, transiciones, estado_inicial, estado_final, alfabeto_maquina_set, blanco);
 
     return 0;
 }
@@ -52,13 +76,18 @@ void ejecutar_maquina(string cinta, map<pair<string, char>, tuple<string, char, 
     int posicion = 0;
 
     while (estado_actual != estado_final) {
+        // Verificar que la posición no se salga de la cinta
+        if (posicion < 0 || posicion >= cinta.length()) {
+            cout << "Error: La cabeza de lectura/escritura se ha salido de la cinta." << endl;
+            return;
+        }
         // Imprimir el estado actual de la cinta y la posición de la cabeza
         imprimir_menu(cinta);
         imprimir_seguimiento(posicion);
 
         char simbolo_actual = cinta[posicion];
 
-        // Verificar que el símbolo actual se encuentre en el alfabeto de la TM
+        // Verificar que el símbolo actual esté en el alfabeto de la máquina
         if (alfabeto_maquina.find(simbolo_actual) == alfabeto_maquina.end()) {
             cout << "Error: Símbolo '" << simbolo_actual << "' no está en el alfabeto de la máquina." << endl;
             return;
@@ -66,7 +95,7 @@ void ejecutar_maquina(string cinta, map<pair<string, char>, tuple<string, char, 
 
         cout << "Estado actual: " << estado_actual << endl;
 
-        // Obtener la transicion (nuevo estado, nuevo símbolo, dirección)
+        // Obtener la transición correspondiente (nuevo estado, nuevo símbolo, dirección)
         if (transiciones.find({estado_actual, simbolo_actual}) == transiciones.end()) {
             cout << "Error: No hay transición definida para el par (" << estado_actual << ", " << simbolo_actual << ")." << endl;
             return;
@@ -77,23 +106,23 @@ void ejecutar_maquina(string cinta, map<pair<string, char>, tuple<string, char, 
         char nuevo_simbolo = get<1>(transicion);
         char direccion = get<2>(transicion);
 
-        // Actualizar la cinta con el nuevo simbolo y el estado actual
+        // Actualizar la cinta con el nuevo símbolo y el estado actual
         cinta[posicion] = nuevo_simbolo;
         estado_actual = nuevo_estado;
 
-        // Mover la cabeza de L/E
+        // Mover la cabeza de lectura/escritura
         if (direccion == 'R') {
             posicion++;
             // Expandir la cinta si es necesario
             if (posicion >= cinta.length()) {
-                cinta += blanco;  // Agregar un vacio al final si se mueve fuera de bounds
+                cinta += blanco;  // Agregar un blanco al final si se mueve fuera de bounds
             }
         } else if (direccion == 'L') {
             posicion--;
-            // Expandir la cinta si se mueve fuera de bounds a la izq
+            // Expandir la cinta si se mueve fuera de bounds a la izquierda
             if (posicion < 0) {
-                cinta = blanco + cinta;  // Agregar un vacio al inicio
-                posicion = 0;  // Ajustar la pos. de la cabeza al nuevo inicio
+                cinta = blanco + cinta;  // Agregar un blanco al inicio
+                posicion = 0;  // Ajustar la posición de la cabeza al nuevo inicio
             }
         }
 
